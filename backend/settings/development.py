@@ -7,7 +7,6 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 dotenv_file = os.path.join(BASE_DIR, ".env")
-print(dotenv_file)
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
@@ -24,6 +23,8 @@ ALLOWED_HOSTS = []
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DATABASES = {
     'default': {

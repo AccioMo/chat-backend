@@ -19,6 +19,8 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
