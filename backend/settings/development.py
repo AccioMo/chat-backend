@@ -40,6 +40,4 @@ SIMPLE_JWT.update({
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
-CORS_ORIGIN_WHITELIST = [
-    # os.environ.get('CORS_ORIGIN_WHITELIST').split(' ')
-]
+CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST').split(' ')
