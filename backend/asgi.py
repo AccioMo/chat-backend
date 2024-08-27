@@ -14,7 +14,8 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import chatapp.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+settings_module = "backend.settings.production" if 'WEBSITE_HOSTNAME' in os.environ else "backend.settings.development"
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),
