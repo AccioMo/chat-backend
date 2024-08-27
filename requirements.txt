@@ -10,5 +10,5 @@ python-dotenv
 channels-redis
 django-environ
 whitenoise
-psycopg
-psycopg2
+gunicorn
+psycopg2-binary
