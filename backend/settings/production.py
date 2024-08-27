@@ -36,3 +36,12 @@ SIMPLE_JWT.update({
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST').split(' ')
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('acciomochatapplayers.redis.cache.windows.net', 6379)],
+        },
+    },
+}
