@@ -10,6 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from pathlib import Path
+import environ
+
+env = environ.Env(
+	DEBUG=(bool, False)
+)
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+environ.Env.read_env(str(BASE_DIR.joinpath('.env')))
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -34,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,12 +84,46 @@ REST_FRAMEWORK = {
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-		'BACKEND': 'channels.layers.InMemoryChannelLayer',
+SECRET_KEY = env('SECRET_KEY', default="default-key")
+
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost').split(' ')
+
+OPENAI_API_KEY = env('OPENAI_API_KEY', default='openai-key')
+
+CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST', default='http://localhost').split(' ')
+
+DATABASES = {
+	'default': env.db(default='sqlite:///db.sqlite3')
+}
+
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'handlers': {
+		'console': {
+			'class': 'logging.StreamHandler',
+		},
+	},
+	"loggers": {
+     "": {
+		 "handlers": ["console"],
+		 "level": "DEBUG",
+	},
 	}
 }
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [env('REDIS_URL', default='redis://localhost:6379')],
+        },
+    },
+}
+
+DEBUG = env("DEBUG", default=False)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -118,7 +164,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "default-key",
+    "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
@@ -153,7 +199,15 @@ SIMPLE_JWT = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env.str('STATIC_URL', default='/static/')
+STATIC_ROOT = env.str('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = DEBUG
+
+# Media files
+MEDIA_URL = env.str('MEDIA_URL', default='/media/')
+MEDIA_ROOT = env.str('MEDIA_ROOT', default=BASE_DIR / 'media')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
