@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from chatapp import views
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
 	TokenObtainPairView,
 	TokenRefreshView,
@@ -41,12 +43,12 @@ urlpatterns = [
     path('api/get_messages', views.get_messages),
     path('api/get_user_chats', views.get_user_chats),
     path('api/get_user_info', views.get_user_info),
-    # path('api/chat_with_ai', views.chat_with_ai),
+    path('api/get_bots', views.get_bots),
+    path('api/create_bot', views.create_bot),
     path('api/message_ai', views.message_ai),
-    # path('api/get_message', views.get_message),
     
     re_path('csrf', views.generate_csrf),
     re_path('login', views.login),
     re_path('register', views.register),
     re_path('auth', views.auth)
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

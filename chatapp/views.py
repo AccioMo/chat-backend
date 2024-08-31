@@ -18,7 +18,7 @@ class MuyTokenObtainPairView(TokenObtainPairView):
 
 @api_view(['POST'])
 def login(request):
-	user = get_object_or_404(AppUser, username=request.data['username'])
+	user = get_object_or_404(AppUser, username=request.data['username'], is_ai=False)
 	if user.check_password(request.data['password']):
 		return Response({
 			"uuid": user.uuid,
@@ -54,7 +54,8 @@ def auth(request):
 def create_chat(request):
 	response = {}
 	response['chatters'] = [request.user.pk]
-	response['topic'] = request.data['topic']
+	if 'topic' in request.data: response['topic'] = request.data['topic']
+	else: response['topic'] = None
 	for chatter in request.data['chatters']:
 		chat_user = AppUser.objects.filter(username=chatter).first()
 		response['chatters'].append(chat_user.pk)
@@ -88,7 +89,7 @@ def message_ai(request):
 		for msg in chat_messages:
 			sender = msg["sender"]
 			messages.append({
-				"role": "assistant" if sender == "AI" else "user",
+				"role": "assistant" if sender["is_ai"] == True else "user",
 				"content": msg["content"]
 			})
 	headers = {
@@ -100,13 +101,13 @@ def message_ai(request):
 		"messages": messages
 	}
 	url = "https://api.openai.com/v1/chat/completions"
-	res = requests.post(url, headers=headers, data=json.dumps(payload)).json()
-	if res.status != 200:
+	res = requests.post(url, headers=headers, data=json.dumps(payload))
+	if res.status_code != 200:
 		return Response({"detail": "AI not available"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-	response = res["choices"][0]["message"]["content"]
+	response = res.json()["choices"][0]["message"]["content"]
 	ret_message = save_message({
 		"chat_id": request.data['chat_id'],
-		"from": AppUser.objects.filter(username="AI").first().uuid,
+		"from": AppUser.objects.filter(username=request.data["to"]).first().uuid,
 		"content": response
 	})
 	return Response({
@@ -133,7 +134,7 @@ def get_messages(request):
 def get_users(request):
 	query_by = request.data['query_by']
 	if query_by == 'all':
-		users = AppUser.objects.all()
+		users = AppUser.objects.filter(is_ai=False)
 		return Response({
 			"success": True,
 			"users": AppUserSerializer(users, many=True).data
@@ -207,6 +208,24 @@ def save_message(data):
 				"detail": "Message not valid" }
 	return { "ok": False, 
    			"detail": "Chat not found" }
+
+@api_view(['GET'])
+def get_bots(request):
+	bots = AppUser.objects.filter(is_ai=True)
+	return Response({
+		"success": True,
+		"bots": AppUserSerializer(bots, many=True).data
+	})
+
+@api_view(['POST'])
+def create_bot(request):
+	request.data["is_ai"] = True
+	request.data["password"] = "password"
+	serializer = AppUserSerializer(data=request.data)
+	if serializer.is_valid():
+		serializer.save()
+		return Response(serializer.data)
+	return Response(serializer.errors)
 
 class UserView(viewsets.ModelViewSet):
 	serializer_class = AppUserSerializer

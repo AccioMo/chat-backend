@@ -17,7 +17,7 @@ class MuyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class AppUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = AppUser
-		fields = ('username', 'uuid', 'email', 'password', 'first_name', 'last_name', 'is_staff', 'is_superuser', 'is_authenticated', 'date_joined')
+		fields = ('username', 'uuid', 'email', 'password', 'first_name', 'last_name', 'description', 'picture', 'is_staff', 'is_ai', 'is_superuser', 'is_authenticated', 'date_joined')
 
 class ChatSerializer(serializers.ModelSerializer):
 	class Meta:
