@@ -5,6 +5,7 @@ from uuid import uuid4
 class AppUser(AbstractUser):
 	uuid = models.CharField(max_length=255, unique=True, primary_key=True, default=uuid4, editable=False)
 	user_permissions = models.ManyToManyField(Permission, related_name='appuser_permissions', blank=True)
+	email = models.CharField(max_length=255, unique=True, null=True)
 	groups = models.ManyToManyField(Group, related_name='appuser_set')
  
 	def __str__(self):
