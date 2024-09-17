@@ -86,6 +86,11 @@ def message_ai(request):
 	}]
 	if chat_messages.exists():
 		chat_messages = MessageSerializer(chat_messages, many=True).data
+		if len(chat_messages) > 20 and request.user.username is not 'admin':
+			return Response({
+				"success": True,
+				"message": "You've reached your limit with this bot."
+			})
 		for msg in chat_messages:
 			sender = msg["sender"]
 			messages.append({
@@ -97,7 +102,7 @@ def message_ai(request):
 		"Authorization": f"Bearer {settings.OPENAI_API_KEY}"
 	}
 	payload = {
-		"model": "gpt-3.5-turbo-0125",
+		"model": "gpt-4-turbo",
 		"messages": messages
 	}
 	url = "https://api.openai.com/v1/chat/completions"
