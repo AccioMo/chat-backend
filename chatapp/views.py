@@ -232,6 +232,22 @@ def create_bot(request):
 		return Response(serializer.data)
 	return Response(serializer.errors)
 
+@api_view(['POST'])
+def delete_user(request):
+	user = AppUser.objects.filter(username=request.data['username']).first()
+	if user:
+		user.delete()
+		return Response({"success": True})
+	return Response({"detail": "user not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def delete_chat(request):
+	chat = Chat.objects.filter(id=request.data['id']).first()
+	if chat:
+		chat.delete()
+		return Response({"success": True})
+	return Response({"detail": "chat not found"}, status=status.HTTP_404_NOT_FOUND)
+
 class UserView(viewsets.ModelViewSet):
 	serializer_class = AppUserSerializer
 	permission_classes = [permissions.IsAuthenticated]
