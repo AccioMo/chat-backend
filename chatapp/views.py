@@ -86,11 +86,11 @@ def message_ai(request):
 	}]
 	if chat_messages.exists():
 		chat_messages = MessageSerializer(chat_messages, many=True).data
-		if len(chat_messages) > 20 and request.user.username is not 'admin':
-			return Response({
-				"success": True,
-				"message": "You've reached your limit with this bot."
-			})
+		# if len(chat_messages) > 20 and request.user.username is not 'admin':
+		# 	return Response({
+		# 		"success": True,
+		# 		"message": "You've reached your limit with this bot."
+		# 	})
 		for msg in chat_messages:
 			sender = msg["sender"]
 			messages.append({
